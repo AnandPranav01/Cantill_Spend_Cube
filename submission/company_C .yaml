@@ -1,0 +1,48 @@
+name: company_C
+reporting_currency: USD
+data_dir: ../data/C
+
+taxonomy:
+  file: category_tree_C.csv
+
+sources:
+- name: lines
+  file: invoice_lines.csv
+  id:
+    column: line_id
+  fields:
+    date: invoice_date
+    supplier_name: supplier_name
+    item_code: product_service_code
+    invoice_number: invoice_number
+    quantity: quantity
+  text_columns:
+  - product_service_description
+  - line_description
+  - invoice_description
+  - gl_account_description
+  context_columns:
+  - submission_type
+  - buyer_entity
+  - uom
+  class_columns:
+  - submission_type
+  amount:
+    column: line_amount_usd
+    tax:
+      mode: net
+  status:
+    column: status
+    cancelled: [Cancelled]
+    approved: [Approved]
+  exclusions:
+  - {code: NON_PROCUREMENT, name: tax_gl,         column: gl_account_description, regex: '\btax(?:es)?\b'}
+  - {code: NON_PROCUREMENT, name: royalty_gl,     column: gl_account_description, regex: 'royalt'}
+  - {code: NON_PROCUREMENT, name: revenue_gl,     column: gl_account_description, regex: 'revenue|\bgas rev\b'}
+  - {code: NON_PROCUREMENT, name: jib_clearing,   column: gl_account_description, regex: '\bJIB\b|deposits? clearing'}
+  - {code: NON_PROCUREMENT, name: financing_gl,   column: gl_account_description, regex: 'debt issuance|interest expense'}
+  - {code: NON_PROCUREMENT, name: receivable_gl,  column: gl_account_description, regex: 'receivable'}
+  - {code: NON_PROCUREMENT, name: payroll_deduct, column: gl_account_description, regex: 'employee deductions'}
+  - {code: NON_PROCUREMENT, name: netted_revenue, column: line_description,       regex: 'netted against revenue'}
+output:
+  file: output_company_C.csv
