@@ -1,0 +1,51 @@
+name: company_A
+reporting_currency: ZAR
+data_dir: ../data/company_A          # override with --data-dir
+taxonomy: {file: taxonomy_A.csv}
+labels:
+  file: labels_A.csv
+  id_column: record_id
+  level_columns: [category_l1, category_l2, category_l3]
+  supplier_key_column: supplier_key
+  item_key_column: item_key
+sources:
+  - name: erp
+    role: primary
+    file: erp_goods_receipts.csv
+    id: {column: line_id, prefix: "ERP:"}
+    fields:
+      date: posting_date
+      supplier_name: supplier_name
+      supplier_id: vendor_id
+      item_code: material_number
+      po: po_number
+      po_item: po_item
+      quantity: quantity
+    text_columns: [material_short_text, service_short_text]
+    context_columns: [spend_type, material_type, cost_centre, site_name, opex_capex, contract_status]
+    class_columns: [spend_type, material_type]
+    amount: {column: value_zar, tax: {mode: net}}
+  - name: tool
+    role: secondary
+    file: invoice_tool_export.csv
+    id: {column: tool_record_id, prefix: "TOOL:"}
+    fields:
+      date: invoice_date
+      supplier_name: supplier_name_as_captured
+      po: po_reference
+      invoice_number: invoice_number
+      quantity: quantity
+    text_columns: [line_text]
+    context_columns: []
+    class_columns: []
+    amount: {column: gross_amount, tax: {mode: gross, vat_column: vat_rate, default_vat: 0.15}}
+    status:
+      column: status
+      cancelled: [Cancelled]
+      approved: [Approved, Paid]
+combine:
+  primary: erp
+  secondary: tool
+  po_pattern: '\d{6,}'
+  reexport_key: [invoice_number, supplier, amount_raw, quantity]
+output: {file: output_A.csv}

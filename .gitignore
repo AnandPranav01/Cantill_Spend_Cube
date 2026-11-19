@@ -1,0 +1,15 @@
+# task data is confidential: never commit it
+data/
+data_kit/
+*.zip
+**/invoice_lines.csv
+**/invoice_tool_export.csv
+**/erp_goods_receipts.csv
+**/labels_*.csv
+**/seed_labels.csv
+**/fx_rates_usd.csv
+**/taxonomy_*.csv
+__pycache__/
+*.pyc
+.venv/
+prof.py

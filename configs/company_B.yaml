@@ -1,0 +1,38 @@
+name: company_B
+reporting_currency: USD
+data_dir: ../data/company_B
+taxonomy: {file: taxonomy_B.csv}
+labels:
+  file: seed_labels.csv
+  id_column: line_id
+  level_columns: [category_l1, category_l2, category_l3]
+  include_column: include
+sources:
+  - name: lines
+    file: invoice_lines.csv
+    id: {column: line_id}
+    fields:
+      date: posting_date
+      invoice_date: invoice_date
+      supplier_id: vendor_id
+      item_code: material_number
+      po: po_number
+      invoice_number: invoice_number
+      quantity: quantity
+    text_columns: [line_description]
+    context_columns: [gl_account_description, gl_account, document_type, supplier_type, po_type, cost_centre, plant, source_system]
+    class_columns: [gl_account_description, gl_account, supplier_type, po_type]
+    exclusion_text_columns: [line_description, gl_account_description]
+    amount:
+      column: line_amount
+      tax: {mode: net}
+      fx:
+        currency_column: currency
+        rate_column: currency_rate
+        rate_is: units_per_reporting
+        date_columns: [posting_date, invoice_date]
+        sanity_tolerance: 1.0
+        table: {file: fx_rates_usd.csv, currency: currency, month: month, rate: units_per_usd}
+    exclusions:
+      - {name: intercompany_gl, code: NON_PROCUREMENT, column: gl_account_description, regex: '^(?:i/?c\b|ic\d|ic payable)'}
+output: {file: output_B.csv}

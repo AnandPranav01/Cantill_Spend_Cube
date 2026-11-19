@@ -1,0 +1,8 @@
+pandas>=2.0
+numpy
+scipy
+scikit-learn
+rapidfuzz
+pyyaml
+# optional, improves classification on unseen trees (downloads a ~120 MB model once):
+# sentence-transformers
